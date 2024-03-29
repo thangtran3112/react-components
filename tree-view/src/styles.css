@@ -1,5 +1,5 @@
 body {
-  font-size: 24px;
+  font-size: 18px;
   margin: 10px;
 }
 
@@ -10,7 +10,7 @@ body {
 }
 
 .tree-node {
-  margin: 10px 0;
+  margin: 0.5rem 0;
   padding-left: 20px;
 }
 
@@ -20,11 +20,27 @@ body {
   margin-right: 10px;
 }
 
+.search-input {
+  margin-left: 0.5rem;
+  height: 0.3rem;
+  font-size: 0.8rem;
+}
+
 .toggle-icon:focus {
   outline: 2px solid blue;
 }
 
+.expand-icon {
+  color: #1e90ff;
+}
+
+.expand-all {
+  margin: 5px;
+  font-size: 0.8rem;
+}
+
 input {
-  padding: 10px;
-  font-size: 24px;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  font-size: 18px;
 }
