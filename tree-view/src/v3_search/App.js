@@ -23,17 +23,24 @@ function MainApp() {
 
   return (
     <div className="App">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={onHandleSearch}
-      />
       <div>
-        <button onClick={() => dispatch({ type: "EXPAND_ALL" })}>
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={onHandleSearch}
+        />
+        <button
+          className="expand-all"
+          onClick={() => dispatch({ type: "EXPAND_ALL" })}
+        >
           Expand All
         </button>
-        <button onClick={() => dispatch({ type: "COLLAPSE_ALL" })}>
+        <button
+          className="expand-all"
+          onClick={() => dispatch({ type: "COLLAPSE_ALL" })}
+        >
           Collapse All
         </button>
       </div>

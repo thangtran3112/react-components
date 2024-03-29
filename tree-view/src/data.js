@@ -25,17 +25,17 @@ const nbaData = [
                         children: [
                           {
                             id: "7",
-                            name: "Jayson Tatum"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+                            name: "Jayson Tatum",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         id: "8",
@@ -59,17 +59,17 @@ const nbaData = [
                         children: [
                           {
                             id: "13",
-                            name: "25.8 PPG"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+                            name: "25.8 PPG",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         id: "14",
@@ -93,20 +93,20 @@ const nbaData = [
                         children: [
                           {
                             id: "19",
-                            name: "Milwaukee Buks"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+                            name: "Milwaukee Buks",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export function fetchData() {
