@@ -8,12 +8,6 @@ const BlankSpace = () => {
 
 const TreeNode = ({ node }) => {
   const { dispatch } = useTreeState();
-  const [myChecked, setMyChecked] = React.useState(node.isChecked);
-
-  useEffect(() => {
-    setMyChecked(node.isChecked);
-  }, [node.isChecked]);
-
   const hasChidlren = !!node.children;
   return (
     <div className="tree-node">
@@ -43,7 +37,7 @@ const TreeNode = ({ node }) => {
       </button>
       <input
         type="checkbox"
-        checked={myChecked}
+        checked={node?.isChecked || false}
         onChange={(event) => {
           console.log(
             `onChange check node at id ${node.id} to ${event.target.checked}`
