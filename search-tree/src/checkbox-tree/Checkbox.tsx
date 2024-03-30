@@ -54,7 +54,8 @@ const StyledCheckbox = ({ node }: CheckboxProps) => {
   return (
     <MuiCheckbox
       {...label}
-      sx={{ boxSizing: 'border-box' }}
+      size="small"
+      color="info"
       id={node.id}
       checked={node?.isChecked || false}
       onChange={(event) => handleOnChange(event)}
