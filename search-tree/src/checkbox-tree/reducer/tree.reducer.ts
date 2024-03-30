@@ -1,8 +1,13 @@
-import React, { createContext, useContext, useReducer } from "react";
+export interface Node {
+  id: string;
+  name: string;
+  children?: Node[];
+  isExpanded?: boolean;
+  isChecked?: boolean;
+  isHighlight?: boolean;
+}
 
-const TreeStateContext = createContext();
-
-const toggleNode = (nodes, id, expanded) => {
+const toggleNode = (nodes: Node[], id: string, expanded: boolean): Node[] => {
   return nodes.map((node) => {
     if (node.id === id) {
       return { ...node, isExpanded: expanded };
@@ -14,7 +19,7 @@ const toggleNode = (nodes, id, expanded) => {
   });
 };
 
-const updateAllNodes = (nodes, isExpanded) => {
+const updateAllNodes = (nodes: Node[], isExpanded: boolean): Node[] => {
   return nodes.map((node) => {
     if (node.children) {
       return {
@@ -27,26 +32,34 @@ const updateAllNodes = (nodes, isExpanded) => {
   });
 };
 
-const collectIdsFromNode = (node, targetId, ids) => {
+const collectIdsFromNode = (
+  node: Node,
+  targetId: string,
+  ids: Set<string>,
+): void => {
   if (node.id === targetId) {
     //if this node have the corresponding it, we will add all child id to the ids array
     ids.add(targetId);
     if (node.children) {
       node.children.forEach((child) =>
-        collectIdsFromNode(child, child.id, ids)
+        collectIdsFromNode(child, child.id, ids),
       );
     }
   } else {
     //if this node is not having the corresponding id, try to find the id in its children
     if (node.children) {
       node.children.forEach((child) =>
-        collectIdsFromNode(child, targetId, ids)
+        collectIdsFromNode(child, targetId, ids),
       );
     }
   }
 };
 
-const markAllNodes = (nodes, isChecked, ids) => {
+const markAllNodes = (
+  nodes: Node[],
+  isChecked: boolean,
+  ids: Set<string>,
+): Node[] => {
   return nodes.map((node) => {
     const matching = ids.has(`${node.id}`);
     console.log(`Current node.id = ${node.id} and matching=${matching}`);
@@ -77,9 +90,9 @@ const markAllNodes = (nodes, isChecked, ids) => {
   });
 };
 
-const checkNodes = (nodes, checked, id) => {
+const checkNodes = (nodes: Node[], checked: boolean, id: string) => {
   console.log(`Dispatch check nodes with id=${id}, checked=${checked}`);
-  const ids = new Set();
+  const ids = new Set<string>();
   nodes.forEach((node) => {
     collectIdsFromNode(node, id, ids);
   });
@@ -104,8 +117,8 @@ const searchNodes = (nodes, query) => {
   return nodes;
 };
 
-const searchNodesHighlightPath = (nodes, query) => {
-  nodes.forEach((node) => {
+const searchNodesHighlightPath = (nodes: Node[], query: string): Node[] => {
+  nodes.forEach((node: Node) => {
     let shouldHighlight = query.length
       ? node.name.toLowerCase().includes(query.toLowerCase())
       : false;
@@ -114,7 +127,7 @@ const searchNodesHighlightPath = (nodes, query) => {
 
     if (node.children) {
       searchNodesHighlightPath(node.children, query);
-      if (node.children.some((child) => child.isHighlight)) {
+      if (node.children.some((child: Node) => child.isHighlight)) {
         node.isHighlight = true;
       }
     }
@@ -123,39 +136,34 @@ const searchNodesHighlightPath = (nodes, query) => {
   return nodes;
 };
 
-const treeReducer = (state, action) => {
+export enum ActionTypes {
+  INIT_DATA = 'INIT_DATA',
+  TOGGLE_NODE = 'TOGGLE_NODE',
+  CHECK_NODE = 'CHECK_NODE',
+  EXPAND_ALL = 'EXPAND_ALL',
+  COLLAPSE_ALL = 'COLLAPSE_ALL',
+  SEARCH = 'SEARCH',
+  SEARCH_HIGHLIGHT_SUBTREE = 'SEARCH_HIGHLIGHT_SUBTREE',
+}
+
+export const treeReducer = (state: Node[], action: any): Node[] => {
   //console.log("ttt", action);
   switch (action.type) {
-    case "INIT_DATA":
+    case ActionTypes.INIT_DATA:
       return action.data;
-    case "TOGGLE_NODE":
+    case ActionTypes.TOGGLE_NODE:
       return toggleNode(state, action.id, action.isExpanded);
-    case "CHECK_NODE":
+    case ActionTypes.CHECK_NODE:
       return checkNodes(state, action.isChecked, action.id);
-    case "EXPAND_ALL":
+    case ActionTypes.EXPAND_ALL:
       return updateAllNodes(state, true);
-    case "COLLAPSE_ALL":
+    case ActionTypes.COLLAPSE_ALL:
       return updateAllNodes(state, false);
-    case "SEARCH":
+    case ActionTypes.SEARCH:
       return searchNodes(state, action.query);
-    case "SEARCH_HIGHLIGHT_SUBTREE":
+    case ActionTypes.SEARCH_HIGHLIGHT_SUBTREE:
       return searchNodesHighlightPath(state, action.query);
     default:
       return state;
   }
-};
-
-export const TreeProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(treeReducer, []); // Default state set as an empty array
-
-  return (
-    <TreeStateContext.Provider value={{ state, dispatch }}>
-      {children}
-    </TreeStateContext.Provider>
-  );
-};
-
-export const useTreeState = () => {
-  const context = useContext(TreeStateContext);
-  return context;
 };
