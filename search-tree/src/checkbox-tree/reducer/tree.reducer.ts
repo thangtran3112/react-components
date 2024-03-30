@@ -101,7 +101,7 @@ const checkNodes = (nodes: Node[], checked: boolean, id: string) => {
   return markAllNodes(nodes, checked, ids);
 };
 
-const searchNodes = (nodes, query) => {
+const searchNodes = (nodes: Node[], query: string) => {
   nodes.forEach((node) => {
     let shouldHighlight = query.length
       ? node.name.toLowerCase().includes(query.toLowerCase())
