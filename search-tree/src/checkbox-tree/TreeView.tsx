@@ -1,22 +1,31 @@
-import React, { useEffect } from "react";
-import { useTreeState } from "./TreeContext";
-import { AiOutlineCaretDown, AiOutlineCaretRight } from "react-icons/ai";
+import { AiOutlineCaretDown, AiOutlineCaretRight } from 'react-icons/ai';
+import { useTreeState } from './TreeProvider';
+import { ActionTypes, Node } from './reducer/tree.reducer';
+import Checkbox from './Checkbox';
 
 const BlankSpace = () => {
   return <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>;
 };
 
-const TreeNode = ({ node }) => {
+interface TreeNodeProps {
+  node: Node;
+}
+
+interface TreeViewProps {
+  data: Node[] | undefined;
+}
+
+const TreeNode = ({ node }: TreeNodeProps) => {
   const { dispatch } = useTreeState();
   const hasChidlren = !!node.children;
   return (
     <div className="tree-node">
       <button
-        style={{ outline: "none", border: "none" }}
+        style={{ outline: 'none', border: 'none' }}
         disabled={!hasChidlren}
         onClick={() =>
           dispatch({
-            type: "TOGGLE_NODE",
+            type: ActionTypes.TOGGLE_NODE,
             id: node.id,
             isExpanded: !node.isExpanded,
           })
@@ -35,21 +44,8 @@ const TreeNode = ({ node }) => {
           <BlankSpace></BlankSpace>
         )}
       </button>
-      <input
-        type="checkbox"
-        checked={node?.isChecked || false}
-        onChange={(event) => {
-          console.log(
-            `onChange check node at id ${node.id} to ${event.target.checked}`
-          );
-          dispatch({
-            type: "CHECK_NODE",
-            isChecked: event.target.checked,
-            id: node.id,
-          });
-        }}
-      ></input>
-      <span style={{ color: node.isHighlight ? "red" : "initial" }}>
+      <Checkbox node={node} />
+      <span style={{ color: node.isHighlight ? 'red' : 'initial' }}>
         {node.name}
       </span>
       {node.isExpanded && <TreeView data={node?.children} />}
@@ -57,12 +53,10 @@ const TreeNode = ({ node }) => {
   );
 };
 
-const TreeView = ({ data }) => {
+const TreeView = ({ data }: TreeViewProps) => {
   return (
     <div className="tree-view">
-      {data?.map((node) => (
-        <TreeNode key={node.id} node={node} />
-      ))}
+      {data?.map((node) => <TreeNode key={node.id} node={node} />)}
     </div>
   );
 };

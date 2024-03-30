@@ -31,12 +31,19 @@ body {
 }
 
 .expand-icon {
-  color: #1e90ff;
+  color: #1172d4;
 }
 
 .expand-all {
   margin: 5px;
   font-size: 0.8rem;
+}
+
+.check-box {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.65rem;
+  accent-color: #1effdd;
 }
 
 input {
