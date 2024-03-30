@@ -1,7 +1,7 @@
 import { AiOutlineCaretDown, AiOutlineCaretRight } from 'react-icons/ai';
 import { useTreeState } from './TreeProvider';
 import { ActionTypes, Node } from './reducer/tree.reducer';
-import Checkbox from './Checkbox';
+import { StyledCheckbox } from './Checkbox';
 
 const BlankSpace = () => {
   return <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>;
@@ -44,7 +44,7 @@ const TreeNode = ({ node }: TreeNodeProps) => {
           <BlankSpace></BlankSpace>
         )}
       </button>
-      <Checkbox node={node} />
+      <StyledCheckbox node={node} />
       <span style={{ color: node.isHighlight ? 'red' : 'initial' }}>
         {node.name}
       </span>
