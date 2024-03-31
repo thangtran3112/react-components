@@ -7,6 +7,10 @@ export interface Node {
   isHighlight?: boolean;
 }
 
+export interface IState {
+  checkedNodes: Node[];
+}
+
 const toggleNode = (nodes: Node[], id: string, expanded: boolean): Node[] => {
   return nodes.map((node) => {
     if (node.id === id) {
@@ -26,6 +30,58 @@ const updateAllNodes = (nodes: Node[], isExpanded: boolean): Node[] => {
         ...node,
         isExpanded,
         children: updateAllNodes(node.children, isExpanded),
+      };
+    }
+    return { ...node, isExpanded };
+  });
+};
+
+/**
+ * Collapse unchecked nodes or path, which has no checked children
+ */
+function collapseUncheckNodes(nodes: Node[]): Node[] {
+  const collapsAll = updateAllNodes(nodes, false);
+  const showCheckedNodes = expandCheckNodes(collapsAll);
+  return showCheckedNodes;
+}
+
+/**
+ * Collapse all checked nodes
+ */
+function collapseCheckNodes(nodes: Node[]): Node[] {
+  return nodes.map((node) => {
+    let isExpanded = node.isExpanded;
+    if (node.isChecked) isExpanded = false;
+    if (node.children) {
+      const children = collapseCheckNodes(node.children);
+      //isExpanded = !children.some((child) => child.isChecked);
+      return {
+        ...node,
+        isExpanded,
+        children,
+      };
+    }
+    return { ...node, isExpanded };
+  });
+}
+
+/**
+ * Expand the tree path with all checked nodes
+ * If a child of a node is checked, we will expand the parent node
+ * Even if the parent node is not checked
+ * */
+const expandCheckNodes = (nodes: Node[]): Node[] => {
+  return nodes.map((node) => {
+    let isExpanded = node.isExpanded;
+    if (node.isChecked) isExpanded = true;
+    if (node.children) {
+      const children = expandCheckNodes(node.children);
+      isExpanded =
+        node.isExpanded || children.some((child) => child.isExpanded);
+      return {
+        ...node,
+        isExpanded,
+        children,
       };
     }
     return { ...node, isExpanded };
@@ -70,6 +126,7 @@ const markAllNodes = (
         return {
           ...node,
           isChecked,
+          //isExpanded: node.isExpanded || isChecked,
           children: markAllNodes(node.children, isChecked, ids),
         };
       } else {
@@ -101,16 +158,19 @@ const checkNodes = (nodes: Node[], checked: boolean, id: string) => {
   return markAllNodes(nodes, checked, ids);
 };
 
-const searchNodes = (nodes: Node[], query: string) => {
+const searchNodes = (nodes: Node[], query: string): Node[] => {
   nodes.forEach((node) => {
     let shouldHighlight = query.length
       ? node.name.toLowerCase().includes(query.toLowerCase())
       : false;
 
     node.isHighlight = shouldHighlight;
-
+    node.isExpanded = shouldHighlight;
     if (node.children) {
       searchNodes(node.children, query);
+      if (node.children.some((child: Node) => child.isExpanded)) {
+        node.isExpanded = true;
+      }
     }
   });
 
@@ -144,6 +204,10 @@ export enum ActionTypes {
   COLLAPSE_ALL = 'COLLAPSE_ALL',
   SEARCH = 'SEARCH',
   SEARCH_HIGHLIGHT_SUBTREE = 'SEARCH_HIGHLIGHT_SUBTREE',
+  EXPAND_CHECKED_NODES = 'EXPAND_CHECKED_NODES',
+  COLLAPSE_CHECKED_NODES = 'COLLAPSE_CHECKED_NODES',
+  COLLAPSE_UNCHECKED_NODES = 'COLLAPSE_UNCHECKED_NODES',
+  SHOW_SEARCH = 'SHOW_SEARCH',
 }
 
 export const treeReducer = (state: Node[], action: any): Node[] => {
@@ -160,9 +224,15 @@ export const treeReducer = (state: Node[], action: any): Node[] => {
     case ActionTypes.COLLAPSE_ALL:
       return updateAllNodes(state, false);
     case ActionTypes.SEARCH:
-      return searchNodes(state, action.query);
+      return searchNodes(updateAllNodes(state, false), action.query);
     case ActionTypes.SEARCH_HIGHLIGHT_SUBTREE:
       return searchNodesHighlightPath(state, action.query);
+    case ActionTypes.EXPAND_CHECKED_NODES:
+      return expandCheckNodes(state);
+    case ActionTypes.COLLAPSE_CHECKED_NODES:
+      return collapseCheckNodes(state);
+    case ActionTypes.COLLAPSE_UNCHECKED_NODES:
+      return collapseUncheckNodes(state);
     default:
       return state;
   }

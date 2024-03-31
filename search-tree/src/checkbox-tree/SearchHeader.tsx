@@ -27,6 +27,18 @@ const SearchHeader = ({ searchQuery, setSearchQuery }: FilterHeaderProps) => {
       />
       <button
         className="expand-all"
+        onClick={() => dispatch({ type: ActionTypes.EXPAND_CHECKED_NODES })}
+      >
+        Show Selected
+      </button>
+      <button
+        className="expand-all"
+        onClick={() => dispatch({ type: ActionTypes.COLLAPSE_CHECKED_NODES })}
+      >
+        Collapse Selected
+      </button>
+      <button
+        className="expand-all"
         onClick={() => dispatch({ type: ActionTypes.EXPAND_ALL })}
       >
         Expand All
@@ -36,6 +48,12 @@ const SearchHeader = ({ searchQuery, setSearchQuery }: FilterHeaderProps) => {
         onClick={() => dispatch({ type: ActionTypes.COLLAPSE_ALL })}
       >
         Collapse All
+      </button>
+      <button
+        className="expand-all"
+        onClick={() => dispatch({ type: ActionTypes.COLLAPSE_UNCHECKED_NODES })}
+      >
+        Collapse Unselected
       </button>
     </div>
   );
