@@ -18,6 +18,7 @@ interface TreeViewProps {
 const TreeNode = ({ node }: TreeNodeProps) => {
   const { dispatch } = useTreeState();
   const hasChidlren = !!node.children;
+
   return (
     <div className="tree-node">
       <button
@@ -55,9 +56,11 @@ const TreeNode = ({ node }: TreeNodeProps) => {
 
 const TreeView = ({ data }: TreeViewProps) => {
   return (
-    <div className="tree-view">
-      {data?.map((node) => <TreeNode key={node.id} node={node} />)}
-    </div>
+    <>
+      <div className="tree-view">
+        {data?.map((node) => <TreeNode key={node.id} node={node} />)}
+      </div>
+    </>
   );
 };
 

@@ -8,6 +8,7 @@ export interface Node {
 }
 
 export interface IState {
+  nodes: Node[];
   checkedNodes: Node[];
 }
 
@@ -39,7 +40,7 @@ const updateAllNodes = (nodes: Node[], isExpanded: boolean): Node[] => {
 /**
  * Collapse unchecked nodes or path, which has no checked children
  */
-function collapseUncheckNodes(nodes: Node[]): Node[] {
+function showOnlyCheckedNodes(nodes: Node[]): Node[] {
   const collapsAll = updateAllNodes(nodes, false);
   const showCheckedNodes = expandCheckNodes(collapsAll);
   return showCheckedNodes;
@@ -111,7 +112,7 @@ const collectIdsFromNode = (
   }
 };
 
-const markAllNodes = (
+const checkNodesByIds = (
   nodes: Node[],
   isChecked: boolean,
   ids: Set<string>,
@@ -127,12 +128,12 @@ const markAllNodes = (
           ...node,
           isChecked,
           //isExpanded: node.isExpanded || isChecked,
-          children: markAllNodes(node.children, isChecked, ids),
+          children: checkNodesByIds(node.children, isChecked, ids),
         };
       } else {
         return {
           ...node,
-          children: markAllNodes(node.children, isChecked, ids),
+          children: checkNodesByIds(node.children, isChecked, ids),
         };
       }
     }
@@ -155,7 +156,7 @@ const checkNodes = (nodes: Node[], checked: boolean, id: string) => {
   });
   console.log(`Marking isChecked=${checked} for all nodes with: `, ids);
 
-  return markAllNodes(nodes, checked, ids);
+  return checkNodesByIds(nodes, checked, ids);
 };
 
 const searchNodes = (nodes: Node[], query: string): Node[] => {
@@ -165,10 +166,14 @@ const searchNodes = (nodes: Node[], query: string): Node[] => {
       : false;
 
     node.isHighlight = shouldHighlight;
-    node.isExpanded = shouldHighlight;
+
     if (node.children) {
       searchNodes(node.children, query);
-      if (node.children.some((child: Node) => child.isExpanded)) {
+      if (
+        node.children.some(
+          (child: Node) => child.isExpanded || child.isHighlight,
+        )
+      ) {
         node.isExpanded = true;
       }
     }
@@ -206,8 +211,9 @@ export enum ActionTypes {
   SEARCH_HIGHLIGHT_SUBTREE = 'SEARCH_HIGHLIGHT_SUBTREE',
   EXPAND_CHECKED_NODES = 'EXPAND_CHECKED_NODES',
   COLLAPSE_CHECKED_NODES = 'COLLAPSE_CHECKED_NODES',
-  COLLAPSE_UNCHECKED_NODES = 'COLLAPSE_UNCHECKED_NODES',
+  SHOW_ONLY_CHECKED_NODES = 'SHOW_ONLY_CHECKED_NODES',
   SHOW_SEARCH = 'SHOW_SEARCH',
+  FIND_NEXT = 'FIND_NEXT',
 }
 
 export const treeReducer = (state: Node[], action: any): Node[] => {
@@ -223,16 +229,18 @@ export const treeReducer = (state: Node[], action: any): Node[] => {
       return updateAllNodes(state, true);
     case ActionTypes.COLLAPSE_ALL:
       return updateAllNodes(state, false);
-    case ActionTypes.SEARCH:
-      return searchNodes(updateAllNodes(state, false), action.query);
-    case ActionTypes.SEARCH_HIGHLIGHT_SUBTREE:
-      return searchNodesHighlightPath(state, action.query);
     case ActionTypes.EXPAND_CHECKED_NODES:
       return expandCheckNodes(state);
     case ActionTypes.COLLAPSE_CHECKED_NODES:
       return collapseCheckNodes(state);
-    case ActionTypes.COLLAPSE_UNCHECKED_NODES:
-      return collapseUncheckNodes(state);
+    case ActionTypes.SHOW_ONLY_CHECKED_NODES:
+      return showOnlyCheckedNodes(state);
+    case ActionTypes.SEARCH:
+      return searchNodes(updateAllNodes(state, false), action.query);
+    case ActionTypes.SEARCH_HIGHLIGHT_SUBTREE:
+      return searchNodesHighlightPath(state, action.query);
+    case ActionTypes.SHOW_SEARCH:
+      return state;
     default:
       return state;
   }
