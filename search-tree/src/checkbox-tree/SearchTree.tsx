@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import TreeView from './TreeView';
-import { fetchData } from '../data/data';
+import { fetchData } from '../data/camera-data';
 import TreeProvider, { useTreeState } from './TreeProvider';
 import { ActionTypes, Node } from './reducer/tree.reducer';
 import SearchHeader from './SearchHeader';
@@ -14,6 +14,7 @@ function MainSearchTree() {
     getCheckedNodeNames(state, checkNodeNames);
     return checkNodeNames.join(', ');
   }
+
   function getCheckedNodeNames(nodes: Node[], checkedNodeNames: string[]) {
     nodes.forEach((node) => {
       if (node.isChecked) {
