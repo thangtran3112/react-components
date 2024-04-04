@@ -89,13 +89,63 @@ const expandCheckNodes = (nodes: Node[]): Node[] => {
   });
 };
 
-const collectIdsFromNode = (
+const checkAllChildren = (
+  parent: Node,
+  isChecked: boolean,
+): Node[] | undefined => {
+  if (!parent.children) return undefined;
+  return parent.children.map((child) => {
+    return {
+      ...child,
+      isExpanded: child.isExpanded || isChecked,
+      isChecked,
+      children: checkAllChildren(child, isChecked),
+    };
+  });
+};
+
+const checkAndExpandNode = (
+  node: Node,
+  targetId: string,
+  isChecked: boolean,
+  stop: {
+    found: boolean;
+  },
+): Node => {
+  if (node.id === targetId) {
+    stop.found = true;
+    const children = checkAllChildren(node, isChecked);
+    return {
+      ...node,
+      isExpanded: node.isExpanded || isChecked,
+      isChecked,
+      children,
+    };
+  } else {
+    //if we already found the matching node, we will not explore this branch of tree any more
+    if (stop.found || !node.children || node.children.length === 0)
+      return { ...node };
+
+    //keep searching for targetId within node.children
+    const children = [] as Node[];
+    node.children.forEach((child) => {
+      const newChild = checkAndExpandNode(child, targetId, isChecked, stop);
+      children.push(newChild);
+    });
+    return {
+      ...node,
+      children,
+    };
+  }
+};
+
+/*const collectIdsFromNode = (
   node: Node,
   targetId: string,
   ids: Set<string>,
 ): void => {
   if (node.id === targetId) {
-    //if this node have the corresponding it, we will add all child id to the ids array
+    //if this node have the corresponding id, we will add all child id to the ids array
     ids.add(targetId);
     if (node.children) {
       node.children.forEach((child) =>
@@ -110,9 +160,9 @@ const collectIdsFromNode = (
       );
     }
   }
-};
+};*/
 
-const checkNodesByIds = (
+/*const checkNodesByIds = (
   nodes: Node[],
   isChecked: boolean,
   ids: Set<string>,
@@ -146,17 +196,18 @@ const checkNodesByIds = (
       return node;
     }
   });
-};
+};*/
 
-const checkNodes = (nodes: Node[], checked: boolean, id: string) => {
-  console.log(`Dispatch check nodes with id=${id}, checked=${checked}`);
-  const ids = new Set<string>();
-  nodes.forEach((node) => {
-    collectIdsFromNode(node, id, ids);
+const checkNodes = (nodes: Node[], isChecked: boolean, targetId: string) => {
+  console.log(`Dispatch check nodes with id=${targetId}, checked=${isChecked}`);
+
+  const stop = {
+    found: false,
+  };
+
+  return nodes.map((node) => {
+    return checkAndExpandNode(node, targetId, isChecked, stop);
   });
-  console.log(`Marking isChecked=${checked} for all nodes with: `, ids);
-
-  return checkNodesByIds(nodes, checked, ids);
 };
 
 const searchNodes = (nodes: Node[], query: string): Node[] => {
